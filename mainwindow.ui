@@ -40,12 +40,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listWidgetDevices">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
+        <widget class="QComboBox" name="comboBoxDevices">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>
@@ -173,6 +173,14 @@
     <string>Decrement the counter</string>
    </property>
   </action>
+  <action name="actionScan">
+   <property name="text">
+    <string>Scan</string>
+   </property>
+   <property name="toolTip">
+    <string>Scan for Bluetooth LE devices</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -201,6 +209,22 @@
     <hint type="sourcelabel">
      <x>348</x>
      <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonScan</sender>
+   <signal>pressed()</signal>
+   <receiver>actionScan</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
