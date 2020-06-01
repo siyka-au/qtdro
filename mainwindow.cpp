@@ -8,11 +8,13 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DeviceFinder *devic
     , connectionHandler(connectionHandler)
     , deviceFinder(deviceFinder)
     , deviceHandler(deviceHandler)
-    , devices()
+    , devicesModel()
 {
     ui->setupUi(this);
 //    this->setCentralWidget(ui->lcdNumberPosition);
 
+    qInfo() << devicesModel.columnCount();
+    ui->comboBoxDevices->setModel(&devicesModel);
     connect(ui->actionScan, &QAction::triggered, this->deviceFinder, &DeviceFinder::startSearch);
     connect(deviceFinder, &DeviceFinder::devicesChanged, this, &MainWindow::updateDevices);
     connect(ui->actionIncrement, &QAction::triggered, this, &MainWindow::increment);
@@ -46,11 +48,22 @@ void MainWindow::updateDevices()
     QList<QObject*> devices;
     if (deviceFinder->devices().canConvert<QList<QObject*>>()) {
         devices = deviceFinder->devices().value<QList<QObject*>>();
-        ui->comboBoxDevices->clear();
+        devicesModel.clear();
         for (int i = 0; i < devices.count(); i++) {
             DeviceInfo* device = (DeviceInfo*) devices.at(i);
+            QString deviceDisplayText = device->getName();
+            if (device->getName() != device->getAddress()) {
+                deviceDisplayText.append(" [");
+                deviceDisplayText.append(device->getAddress());
+                deviceDisplayText.append("]");
+            }
+
+            QStandardItem *deviceName = new QStandardItem(deviceDisplayText);
+            deviceName->setData(QVariant::fromValue(device));
+            devicesModel.appendRow(deviceName);
+
             qInfo() << device->getName();
-            ui->comboBoxDevices->addItem(device->getName());
+//            ui->comboBoxDevices->addItem(device->getName());
         }
     }
 

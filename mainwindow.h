@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStandardItemModel>
+#include <QStringListModel>
 
 #include "connectionhandler.h"
 #include "devicefinder.h"
@@ -32,6 +34,6 @@ private:
     ConnectionHandler *connectionHandler;
     DeviceFinder *deviceFinder;
     DeviceHandler *deviceHandler;
-    QMap<QString, DeviceInfo*> devices;
+    QStandardItemModel devicesModel;
 };
 #endif // MAINWINDOW_H
