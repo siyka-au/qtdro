@@ -48,42 +48,41 @@
 **
 ****************************************************************************/
 
-#include "devicehandler.h"
-#include "deviceinfo.h"
+#include "dial_indicator_handler.h"
+#include "device_info.h"
 #include <QtEndian>
 #include <QRandomGenerator>
 
-DeviceHandler::DeviceHandler(QObject *parent) :
+DialIndicatorHandler::DialIndicatorHandler(QObject *parent) :
     BluetoothBaseClass(parent),
-    m_foundHeartRateService(false),
+    m_foundDialIndicatorService(false),
     m_measuring(false),
-    m_currentValue(0),
-    m_min(0), m_max(0), m_sum(0), m_avg(0), m_calories(0)
+    m_position(0)
 {
 
 }
 
-void DeviceHandler::setAddressType(AddressType type)
+void DialIndicatorHandler::setAddressType(AddressType type)
 {
     switch (type) {
-    case DeviceHandler::AddressType::PublicAddress:
+    case DialIndicatorHandler::AddressType::PublicAddress:
         m_addressType = QLowEnergyController::PublicAddress;
         break;
-    case DeviceHandler::AddressType::RandomAddress:
+    case DialIndicatorHandler::AddressType::RandomAddress:
         m_addressType = QLowEnergyController::RandomAddress;
         break;
     }
 }
 
-DeviceHandler::AddressType DeviceHandler::addressType() const
+DialIndicatorHandler::AddressType DialIndicatorHandler::addressType() const
 {
     if (m_addressType == QLowEnergyController::RandomAddress)
-        return DeviceHandler::AddressType::RandomAddress;
+        return DialIndicatorHandler::AddressType::RandomAddress;
 
-    return DeviceHandler::AddressType::PublicAddress;
+    return DialIndicatorHandler::AddressType::PublicAddress;
 }
 
-void DeviceHandler::setDevice(DeviceInfo *device)
+void DialIndicatorHandler::setDevice(DeviceInfo *device)
 {
     clearMessages();
     m_currentDevice = device;
@@ -101,13 +100,13 @@ void DeviceHandler::setDevice(DeviceInfo *device)
         // Make connections
         //! [Connect-Signals-1]
         m_control = QLowEnergyController::createCentral(m_currentDevice->getDevice(), this);
+
         //! [Connect-Signals-1]
         m_control->setRemoteAddressType(m_addressType);
+
         //! [Connect-Signals-2]
-        connect(m_control, &QLowEnergyController::serviceDiscovered,
-                this, &DeviceHandler::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished,
-                this, &DeviceHandler::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &DialIndicatorHandler::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &DialIndicatorHandler::serviceScanDone);
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -128,38 +127,31 @@ void DeviceHandler::setDevice(DeviceInfo *device)
     }
 }
 
-void DeviceHandler::startMeasurement()
+void DialIndicatorHandler::startMeasurement()
 {
     if (alive()) {
-        m_start = QDateTime::currentDateTime();
-        m_min = 0;
-        m_max = 0;
-        m_avg = 0;
-        m_sum = 0;
-        m_calories = 0;
         m_measuring = true;
-        m_measurements.clear();
         emit measuringChanged();
     }
 }
 
-void DeviceHandler::stopMeasurement()
+void DialIndicatorHandler::stopMeasurement()
 {
     m_measuring = false;
     emit measuringChanged();
 }
 
-//! [Filter HeartRate service 1]
-void DeviceHandler::serviceDiscovered(const QBluetoothUuid &gatt)
+//! [Filter dial indicator service 1]
+void DialIndicatorHandler::serviceDiscovered(const QBluetoothUuid &gatt)
 {
-    if (gatt == QBluetoothUuid(QBluetoothUuid::HeartRate)) {
-        setInfo("Heart Rate service discovered. Waiting for service scan to be done...");
-        m_foundHeartRateService = true;
+    if (gatt == DIAL_INDICATOR_SERVICE_UUID) {
+        setInfo("Dial Indicator service discovered. Waiting for service scan to be done...");
+        m_foundDialIndicatorService = true;
     }
 }
-//! [Filter HeartRate service 1]
+//! [Filter dial indicator service 1]
 
-void DeviceHandler::serviceScanDone()
+void DialIndicatorHandler::serviceScanDone()
 {
     setInfo("Service scan done.");
 
@@ -169,25 +161,25 @@ void DeviceHandler::serviceScanDone()
         m_service = nullptr;
     }
 
-//! [Filter HeartRate service 2]
-    // If heartRateService found, create new service
-    if (m_foundHeartRateService)
+//! [Filter dial indicator service 2]
+    // If dial indicator service found, create new service
+    if (m_foundDialIndicatorService)
         m_service = m_control->createServiceObject(QBluetoothUuid(QBluetoothUuid::HeartRate), this);
 
     if (m_service) {
-        connect(m_service, &QLowEnergyService::stateChanged, this, &DeviceHandler::serviceStateChanged);
-        connect(m_service, &QLowEnergyService::characteristicChanged, this, &DeviceHandler::updateHeartRateValue);
-        connect(m_service, &QLowEnergyService::descriptorWritten, this, &DeviceHandler::confirmedDescriptorWrite);
+        connect(m_service, &QLowEnergyService::stateChanged, this, &DialIndicatorHandler::serviceStateChanged);
+        connect(m_service, &QLowEnergyService::characteristicChanged, this, &DialIndicatorHandler::updatePositionValue);
+        connect(m_service, &QLowEnergyService::descriptorWritten, this, &DialIndicatorHandler::confirmedDescriptorWrite);
         m_service->discoverDetails();
     } else {
-        setError("Heart Rate Service not found.");
+        setError("Dial Indicator Service not found.");
     }
-//! [Filter HeartRate service 2]
+//! [Filter dial indicator service 2]
 }
 
 // Service functions
-//! [Find HRM characteristic]
-void DeviceHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
+//! [Find position measurement characteristic]
+void DialIndicatorHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
 {
     switch (s) {
     case QLowEnergyService::DiscoveringServices:
@@ -197,13 +189,13 @@ void DeviceHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
     {
         setInfo(tr("Service discovered."));
 
-        const QLowEnergyCharacteristic hrChar = m_service->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
-        if (!hrChar.isValid()) {
-            setError("HR Data not found.");
+        const QLowEnergyCharacteristic dialIndicatorChar = m_service->characteristic(DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID);
+        if (!dialIndicatorChar.isValid()) {
+            setError("Dial Indicator data not found.");
             break;
         }
 
-        m_notificationDesc = hrChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        m_notificationDesc = dialIndicatorChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
         if (m_notificationDesc.isValid())
             m_service->writeDescriptor(m_notificationDesc, QByteArray::fromHex("0100"));
 
@@ -216,13 +208,13 @@ void DeviceHandler::serviceStateChanged(QLowEnergyService::ServiceState s)
 
     emit aliveChanged();
 }
-//! [Find HRM characteristic]
+//! [Find position measurement characteristic]
 
 //! [Reading value]
-void DeviceHandler::updateHeartRateValue(const QLowEnergyCharacteristic &c, const QByteArray &value)
+void DialIndicatorHandler::updatePositionValue(const QLowEnergyCharacteristic &c, const QByteArray &value)
 {
     // ignore any other characteristic change -> shouldn't really happen though
-    if (c.uuid() != QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement))
+    if (c.uuid() != DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID)
         return;
 
     auto data = reinterpret_cast<const quint8 *>(value.constData());
@@ -234,12 +226,10 @@ void DeviceHandler::updateHeartRateValue(const QLowEnergyCharacteristic &c, cons
         hrvalue = static_cast<int>(qFromLittleEndian<quint16>(data[1]));
     else
         hrvalue = static_cast<int>(data[1]);
-
-    addMeasurement(hrvalue);
 }
 //! [Reading value]
 
-void DeviceHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value)
+void DialIndicatorHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value)
 {
     if (d.isValid() && d == m_notificationDesc && value == QByteArray::fromHex("0000")) {
         //disabled notifications -> assume disconnect intent
@@ -249,9 +239,9 @@ void DeviceHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, cons
     }
 }
 
-void DeviceHandler::disconnectService()
+void DialIndicatorHandler::disconnectService()
 {
-    m_foundHeartRateService = false;
+    m_foundDialIndicatorService = false;
 
     //disable notifications
     if (m_notificationDesc.isValid() && m_service
@@ -266,12 +256,12 @@ void DeviceHandler::disconnectService()
     }
 }
 
-bool DeviceHandler::measuring() const
+bool DialIndicatorHandler::measuring() const
 {
     return m_measuring;
 }
 
-bool DeviceHandler::alive() const
+bool DialIndicatorHandler::alive() const
 {
     if (m_service)
         return m_service->state() == QLowEnergyService::ServiceDiscovered;
@@ -279,52 +269,7 @@ bool DeviceHandler::alive() const
     return false;
 }
 
-int DeviceHandler::hr() const
+double DialIndicatorHandler::position() const
 {
-    return m_currentValue;
-}
-
-int DeviceHandler::time() const
-{
-    return m_start.secsTo(m_stop);
-}
-
-int DeviceHandler::maxHR() const
-{
-    return m_max;
-}
-
-int DeviceHandler::minHR() const
-{
-    return m_min;
-}
-
-float DeviceHandler::average() const
-{
-    return m_avg;
-}
-
-float DeviceHandler::calories() const
-{
-    return m_calories;
-}
-
-void DeviceHandler::addMeasurement(int value)
-{
-    m_currentValue = value;
-
-    // If measuring and value is appropriate
-    if (m_measuring && value > 30 && value < 250) {
-
-        m_stop = QDateTime::currentDateTime();
-        m_measurements << value;
-
-        m_min = m_min == 0 ? value : qMin(value, m_min);
-        m_max = qMax(value, m_max);
-        m_sum += value;
-        m_avg = (double)m_sum / m_measurements.size();
-        m_calories = ((-55.0969 + (0.6309 * m_avg) + (0.1988 * 94) + (0.2017 * 24)) / 4.184) * 60 * time()/3600;
-    }
-
-    emit statsChanged();
+    return m_position;
 }

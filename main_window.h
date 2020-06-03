@@ -5,9 +5,8 @@
 #include <QStandardItemModel>
 #include <QStringListModel>
 
-#include "connectionhandler.h"
-#include "devicefinder.h"
-#include "devicehandler.h"
+#include "connection_handler.h"
+#include "dial_indicator_handler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,7 +17,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(ConnectionHandler *connectionHandler, DeviceFinder *deviceFinder, DeviceHandler *deviceHandler, QWidget *parent = nullptr);
+    MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandler *deviceHandler, QWidget *parent = nullptr);
     ~MainWindow();
 
     void updateDevices();
@@ -32,8 +31,7 @@ private:
     Ui::MainWindow *ui;
     int positionCounts;
     ConnectionHandler *connectionHandler;
-    DeviceFinder *deviceFinder;
-    DeviceHandler *deviceHandler;
+    DialIndicatorHandler *deviceHandler;
     QStandardItemModel devicesModel;
 };
 #endif // MAINWINDOW_H

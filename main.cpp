@@ -1,20 +1,18 @@
-#include "mainwindow.h"
+#include "main_window.h"
 
 #include <QApplication>
 
-#include "connectionhandler.h"
-#include "devicefinder.h"
-#include "devicehandler.h"
+#include "connection_handler.h"
+#include "dial_indicator_handler.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
     ConnectionHandler connectionHandler;
-    DeviceHandler deviceHandler;
-    DeviceFinder deviceFinder(&deviceHandler);
+    DialIndicatorHandler deviceHandler;
 
-    MainWindow w(&connectionHandler, &deviceFinder, &deviceHandler);
+    MainWindow w(&connectionHandler, &deviceHandler);
     w.show();
     return a.exec();
 }

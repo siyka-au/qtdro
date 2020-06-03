@@ -48,51 +48,43 @@
 **
 ****************************************************************************/
 
-#ifndef DEVICEFINDER_H
-#define DEVICEFINDER_H
+#include "device_info.h"
+#include <QBluetoothAddress>
+#include <QBluetoothUuid>
 
-#include "bluetoothbaseclass.h"
-
-#include <QTimer>
-#include <QVariant>
-#include <QBluetoothDeviceDiscoveryAgent>
-#include <QBluetoothDeviceInfo>
-
-
-class DeviceInfo;
-class DeviceHandler;
-
-class DeviceFinder: public BluetoothBaseClass
+DeviceInfo::DeviceInfo(const QBluetoothDeviceInfo &info):
+    m_device(info)
 {
-    Q_OBJECT
+}
 
-    Q_PROPERTY(bool scanning READ scanning NOTIFY scanningChanged)
-    Q_PROPERTY(QVariant devices READ devices NOTIFY devicesChanged)
+QBluetoothDeviceInfo DeviceInfo::getDevice() const
+{
+    return m_device;
+}
 
-public:
-    DeviceFinder(DeviceHandler *handler, QObject *parent = nullptr);
-    ~DeviceFinder();
+QString DeviceInfo::getName() const
+{
+#ifdef SIMULATOR
+    return "Demo device";
+#else
+    return m_device.name();
+#endif
+}
 
-    bool scanning() const;
-    QVariant devices();
+QString DeviceInfo::getAddress() const
+{
+#ifdef SIMULATOR
+    return "00:11:22:33:44:55";
+#elif defined Q_OS_DARWIN
+    // workaround for Core Bluetooth:
+    return m_device.deviceUuid().toString();
+#else
+    return m_device.address().toString();
+#endif
+}
 
-public slots:
-    void startSearch();
-    void connectToService(const QString &address);
-
-private slots:
-    void addDevice(const QBluetoothDeviceInfo&);
-    void scanError(QBluetoothDeviceDiscoveryAgent::Error error);
-    void scanFinished();
-
-signals:
-    void scanningChanged();
-    void devicesChanged();
-
-private:
-    DeviceHandler *m_deviceHandler;
-    QBluetoothDeviceDiscoveryAgent *m_deviceDiscoveryAgent;
-    QList<QObject*> m_devices;
-};
-
-#endif // DEVICEFINDER_H
+void DeviceInfo::setDevice(const QBluetoothDeviceInfo &device)
+{
+    m_device = device;
+    emit deviceChanged();
+}
