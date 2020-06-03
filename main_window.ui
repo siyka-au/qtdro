@@ -33,19 +33,12 @@
         <enum>QLayout::SetMinimumSize</enum>
        </property>
        <item>
-        <widget class="QPushButton" name="pushButtonScan">
-         <property name="text">
-          <string>Scan</string>
+        <widget class="QLineEdit" name="lineEditAddress">
+         <property name="inputMask">
+          <string>HH:HH:HH:HH:HH:HH</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBoxDevices">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+         <property name="text">
+          <string>94:54:93:4E:76:4E</string>
          </property>
         </widget>
        </item>
@@ -181,6 +174,14 @@
     <string>Scan for Bluetooth LE devices</string>
    </property>
   </action>
+  <action name="actionConnect">
+   <property name="text">
+    <string>Connect</string>
+   </property>
+   <property name="toolTip">
+    <string>Connect</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -217,14 +218,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButtonScan</sender>
+   <sender>pushButtonConnect</sender>
    <signal>pressed()</signal>
-   <receiver>actionScan</receiver>
+   <receiver>actionConnect</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>154</y>
+     <x>748</x>
+     <y>47</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

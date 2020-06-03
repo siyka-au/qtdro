@@ -51,7 +51,7 @@
 #ifndef DEVICEHANDLER_H
 #define DEVICEHANDLER_H
 
-#include "bluetoothbaseclass.h"
+#include "bluetooth_base_class.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -60,20 +60,18 @@
 #include <QLowEnergyController>
 #include <QLowEnergyService>
 
+const QBluetoothUuid DIAL_INDICATOR_SERVICE_UUID = QBluetoothUuid(QString("d7578caf-686d-4216-ba8e-a3707f1590fc"));
+const QBluetoothUuid DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID = QBluetoothUuid(QString("d757fcb0-686d-4216-ba8e-a3707f1590fc"));
+
 class DeviceInfo;
 
-class DeviceHandler : public BluetoothBaseClass
+class DialIndicatorHandler : public BluetoothBaseClass
 {
     Q_OBJECT
 
     Q_PROPERTY(bool measuring READ measuring NOTIFY measuringChanged)
     Q_PROPERTY(bool alive READ alive NOTIFY aliveChanged)
-    Q_PROPERTY(int hr READ hr NOTIFY statsChanged)
-    Q_PROPERTY(int maxHR READ maxHR NOTIFY statsChanged)
-    Q_PROPERTY(int minHR READ minHR NOTIFY statsChanged)
-    Q_PROPERTY(float average READ average NOTIFY statsChanged)
-    Q_PROPERTY(int time READ time NOTIFY statsChanged)
-    Q_PROPERTY(float calories READ calories NOTIFY statsChanged)
+    Q_PROPERTY(double position READ position NOTIFY statsChanged)
     Q_PROPERTY(AddressType addressType READ addressType WRITE setAddressType)
 
 public:
@@ -83,7 +81,7 @@ public:
     };
     Q_ENUM(AddressType)
 
-    DeviceHandler(QObject *parent = nullptr);
+    DialIndicatorHandler(QObject *parent = nullptr);
 
     void setDevice(DeviceInfo *device);
     void setAddressType(AddressType type);
@@ -93,12 +91,7 @@ public:
     bool alive() const;
 
     // Statistics
-    int hr() const;
-    int time() const;
-    float average() const;
-    int maxHR() const;
-    int minHR() const;
-    float calories() const;
+    double position() const;
 
 signals:
     void measuringChanged();
@@ -117,37 +110,22 @@ private:
 
     //QLowEnergyService
     void serviceStateChanged(QLowEnergyService::ServiceState s);
-    void updateHeartRateValue(const QLowEnergyCharacteristic &c,
-                              const QByteArray &value);
-    void confirmedDescriptorWrite(const QLowEnergyDescriptor &d,
-                              const QByteArray &value);
+    void updatePositionValue(const QLowEnergyCharacteristic &c, const QByteArray &value);
+    void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
 
-#ifdef SIMULATOR
-    void updateDemoHR();
-#endif
 private:
-    void addMeasurement(int value);
+    void setPoition(double value);
 
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;
     QLowEnergyDescriptor m_notificationDesc;
     DeviceInfo *m_currentDevice = nullptr;
 
-    bool m_foundHeartRateService;
+    bool m_foundDialIndicatorService;
     bool m_measuring;
-    int m_currentValue, m_min, m_max, m_sum;
-    float m_avg, m_calories;
+    double m_position;
 
-    // Statistics
-    QDateTime m_start;
-    QDateTime m_stop;
-
-    QVector<int> m_measurements;
     QLowEnergyController::RemoteAddressType m_addressType = QLowEnergyController::PublicAddress;
-
-#ifdef SIMULATOR
-    QTimer m_demoTimer;
-#endif
 };
 
 #endif // DEVICEHANDLER_H

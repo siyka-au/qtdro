@@ -1,4 +1,4 @@
-QT       += core gui bluetooth
+QT += core gui bluetooth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,24 +16,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    bluetoothbaseclass.cpp \
-    connectionhandler.cpp \
-    devicefinder.cpp \
-    devicehandler.cpp \
-    deviceinfo.cpp \
+    bluetooth_base_class.cpp \
+    connection_handler.cpp \
+    device_info.cpp \
+    dial_indicator_handler.cpp \
     main.cpp \
-    mainwindow.cpp
+    main_window.cpp
 
 HEADERS += \
-    bluetoothbaseclass.h \
-    connectionhandler.h \
-    devicefinder.h \
-    devicehandler.h \
-    deviceinfo.h \
-    mainwindow.h
+    bluetooth_base_class.h \
+    connection_handler.h \
+    device_info.h \
+    dial_indicator_handler.h \
+    main_window.h
 
 FORMS += \
-    mainwindow.ui
+    main_window.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

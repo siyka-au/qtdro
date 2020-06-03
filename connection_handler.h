@@ -48,40 +48,37 @@
 **
 ****************************************************************************/
 
-#include "bluetoothbaseclass.h"
+#ifndef CONNECTIONHANDLER_H
+#define CONNECTIONHANDLER_H
 
-BluetoothBaseClass::BluetoothBaseClass(QObject *parent) : QObject(parent)
-{
-}
+#include <QObject>
+#include <QBluetoothLocalDevice>
 
-QString BluetoothBaseClass::error() const
+class ConnectionHandler : public QObject
 {
-    return m_error;
-}
+    Q_PROPERTY(bool alive READ alive NOTIFY deviceChanged)
+    Q_PROPERTY(QString name READ name NOTIFY deviceChanged)
+    Q_PROPERTY(QString address READ address NOTIFY deviceChanged)
+    Q_PROPERTY(bool requiresAddressType READ requiresAddressType CONSTANT)
 
-QString BluetoothBaseClass::info() const
-{
-    return m_info;
-}
+    Q_OBJECT
 
-void BluetoothBaseClass::setError(const QString &error)
-{
-    if (m_error != error) {
-        m_error = error;
-        emit errorChanged();
-    }
-}
+public:
+    explicit ConnectionHandler(QObject *parent = nullptr);
 
-void BluetoothBaseClass::setInfo(const QString &info)
-{
-    if (m_info != info) {
-        m_info = info;
-        emit infoChanged();
-    }
-}
+    bool alive() const;
+    bool requiresAddressType() const;
+    QString name() const;
+    QString address() const;
 
-void BluetoothBaseClass::clearMessages()
-{
-    setInfo("");
-    setError("");
-}
+signals:
+    void deviceChanged();
+
+private slots:
+    void hostModeChanged(QBluetoothLocalDevice::HostMode mode);
+
+private:
+    QBluetoothLocalDevice m_localDevice;
+};
+
+#endif // CONNECTIONHANDLER_H
