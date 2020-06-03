@@ -16,10 +16,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    bluetoothbaseclass.cpp \
+    connectionhandler.cpp \
+    devicefinder.cpp \
+    devicehandler.cpp \
+    deviceinfo.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    bluetoothbaseclass.h \
+    connectionhandler.h \
+    devicefinder.h \
+    devicehandler.h \
+    deviceinfo.h \
     mainwindow.h
 
 FORMS += \
