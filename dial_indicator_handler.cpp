@@ -163,21 +163,26 @@ void DialIndicatorHandler::serviceScanDone()
     setInfo("Service scan done.");
 
     // Delete old service if available
-    if (m_service) {
-        delete m_service;
-        m_service = nullptr;
+    if (m_positionService) {
+        delete m_positionService;
+        m_positionService = nullptr;
     }
 
 //! [Filter dial indicator service 2]
     // If dial indicator service found, create new service
-    if (m_foundDialIndicatorService)
-        m_service = m_control->createServiceObject(DIAL_INDICATOR_SERVICE_UUID, this);
+    if (m_foundDialIndicatorService) {
+        m_positionService = m_control->createServiceObject(DIAL_INDICATOR_SERVICE_UUID, this);
+        m_batteryService = m_control->createServiceObject(QBluetoothUuid::BatteryService, this);
+    }
 
-    if (m_service) {
-        connect(m_service, &QLowEnergyService::stateChanged, this, &DialIndicatorHandler::serviceStateChanged);
-        connect(m_service, &QLowEnergyService::characteristicChanged, this, &DialIndicatorHandler::updatePositionValue);
-        connect(m_service, &QLowEnergyService::descriptorWritten, this, &DialIndicatorHandler::confirmedDescriptorWrite);
-        m_service->discoverDetails();
+    if (m_positionService) {
+        connect(m_positionService, &QLowEnergyService::stateChanged, this, &DialIndicatorHandler::serviceStateChanged);
+        connect(m_positionService, &QLowEnergyService::characteristicChanged, this, &DialIndicatorHandler::updatePositionValue);
+        connect(m_positionService, &QLowEnergyService::descriptorWritten, this, &DialIndicatorHandler::confirmedDescriptorWrite);
+        m_positionService->discoverDetails();
+
+        connect(m_batteryService, &QLowEnergyService::stateChanged, this, &DialIndicatorHandler::serviceStateChanged);
+        m_batteryService->discoverDetails();
     } else {
         setError("Dial Indicator Service not found.");
     }
@@ -196,15 +201,15 @@ void DialIndicatorHandler::serviceStateChanged(QLowEnergyService::ServiceState s
     {
         setInfo(tr("Service discovered."));
 
-        const QLowEnergyCharacteristic dialIndicatorChar = m_service->characteristic(DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID);
+        const QLowEnergyCharacteristic dialIndicatorChar = m_positionService->characteristic(DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID);
         if (!dialIndicatorChar.isValid()) {
             setError("Dial Indicator data not found.");
             break;
         }
 
-        m_notificationDesc = dialIndicatorChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
-        if (m_notificationDesc.isValid())
-            m_service->writeDescriptor(m_notificationDesc, QByteArray::fromHex("0100"));
+        m_positionNotificationDesc = dialIndicatorChar.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+        if (m_positionNotificationDesc.isValid())
+            m_positionService->writeDescriptor(m_positionNotificationDesc, QByteArray::fromHex("0100"));
 
         break;
     }
@@ -232,17 +237,17 @@ void DialIndicatorHandler::updatePositionValue(const QLowEnergyCharacteristic &c
 
     this->m_position = counts * 0.01;
 
-    emit newMeasurementReceived();
+    emit positionChanged();
 }
 //! [Reading value]
 
 void DialIndicatorHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value)
 {
-    if (d.isValid() && d == m_notificationDesc && value == QByteArray::fromHex("0000")) {
+    if (d.isValid() && d == m_positionNotificationDesc && value == QByteArray::fromHex("0000")) {
         //disabled notifications -> assume disconnect intent
         m_control->disconnectFromDevice();
-        delete m_service;
-        m_service = nullptr;
+        delete m_positionService;
+        m_positionService = nullptr;
     } else {
         setInfo("Notifications enabled.");
     }
@@ -253,15 +258,14 @@ void DialIndicatorHandler::disconnectService()
     m_foundDialIndicatorService = false;
 
     //disable notifications
-    if (m_notificationDesc.isValid() && m_service
-            && m_notificationDesc.value() == QByteArray::fromHex("0100")) {
-        m_service->writeDescriptor(m_notificationDesc, QByteArray::fromHex("0000"));
+    if (m_positionNotificationDesc.isValid() && m_positionService && m_positionNotificationDesc.value() == QByteArray::fromHex("0100")) {
+        m_positionService->writeDescriptor(m_positionNotificationDesc, QByteArray::fromHex("0000"));
     } else {
         if (m_control)
             m_control->disconnectFromDevice();
 
-        delete m_service;
-        m_service = nullptr;
+        delete m_positionService;
+        m_positionService = nullptr;
     }
 }
 
@@ -272,19 +276,24 @@ bool DialIndicatorHandler::measuring() const
 
 bool DialIndicatorHandler::alive() const
 {
-    if (m_service)
-        return m_service->state() == QLowEnergyService::ServiceDiscovered;
+    if (m_positionService)
+        return m_positionService->state() == QLowEnergyService::ServiceDiscovered;
 
     return false;
 }
 
 double DialIndicatorHandler::position() const
 {
-    return m_position + m_offset;
+    return m_position + m_positionOffset;
+}
+
+uint8_t DialIndicatorHandler::batteryLevel() const
+{
+    return m_battery;
 }
 
 void DialIndicatorHandler::setPosition(double setPosition)
 {
-    m_offset = setPosition - m_position;
-    emit newMeasurementReceived();
+    m_positionOffset = setPosition - m_position;
+    emit positionChanged();
 }

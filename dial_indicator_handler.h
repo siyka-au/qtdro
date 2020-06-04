@@ -91,11 +91,14 @@ public:
 
     double position() const;
     void setPosition(double setPos);
+    uint8_t batteryLevel() const;
+    int8_t rssi() const;
 
 signals:
     void measuringChanged();
     void aliveChanged();
-    void newMeasurementReceived();
+    void positionChanged();
+    void batteryLevelChanged();
 
 public slots:
     void startMeasurement();
@@ -114,14 +117,19 @@ private:
 
 private:
     QLowEnergyController *m_control = nullptr;
-    QLowEnergyService *m_service = nullptr;
-    QLowEnergyDescriptor m_notificationDesc;
+    QLowEnergyService *m_positionService = nullptr;
+    QLowEnergyService *m_batteryService = nullptr;
+    QLowEnergyService *m_rssiService = nullptr;
+    QLowEnergyDescriptor m_positionNotificationDesc;
+    QLowEnergyDescriptor m_batteryNotificationDesc;
+    QLowEnergyDescriptor m_rssiNotificationDesc;
     QBluetoothAddress *address = nullptr;
 
     bool m_foundDialIndicatorService;
     bool m_measuring;
     double m_position;
-    double m_offset;
+    double m_positionOffset;
+    uint8_t m_battery;
 
     QLowEnergyController::RemoteAddressType m_addressType = QLowEnergyController::PublicAddress;
 };

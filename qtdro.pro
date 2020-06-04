@@ -19,6 +19,7 @@ SOURCES += \
     bluetooth_base_class.cpp \
     connection_handler.cpp \
     dial_indicator_handler.cpp \
+    dynamicfontsizelabel.cpp \
     main.cpp \
     main_window.cpp
 
@@ -26,6 +27,7 @@ HEADERS += \
     bluetooth_base_class.h \
     connection_handler.h \
     dial_indicator_handler.h \
+    dynamicfontsizelabel.h \
     main_window.h
 
 FORMS += \

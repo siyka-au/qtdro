@@ -38,7 +38,7 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
         this->deviceHandler->startMeasurement();
     });
 
-    connect(deviceHandler, &DialIndicatorHandler::newMeasurementReceived, this, [this]() {
+    connect(deviceHandler, &DialIndicatorHandler::positionChanged, this, [this]() {
         double position = this->deviceHandler->position();
         ui->label->setText(QString::asprintf("%s%8.3f", position < 0 ? "-" : " ", abs(position)));
 //        ui->label->setText(QString::asprintf("%9.3f", position));
