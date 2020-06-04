@@ -18,7 +18,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     bluetooth_base_class.cpp \
     connection_handler.cpp \
-    device_info.cpp \
     dial_indicator_handler.cpp \
     main.cpp \
     main_window.cpp
@@ -26,7 +25,6 @@ SOURCES += \
 HEADERS += \
     bluetooth_base_class.h \
     connection_handler.h \
-    device_info.h \
     dial_indicator_handler.h \
     main_window.h
 

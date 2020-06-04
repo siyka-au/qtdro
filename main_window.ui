@@ -52,40 +52,40 @@
       </layout>
      </item>
      <item>
-      <widget class="QLCDNumber" name="lcdNumber">
+      <widget class="QLabel" name="label">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>150</height>
-        </size>
+       <property name="font">
+        <font>
+         <family>Monospace</family>
+         <pointsize>50</pointsize>
+        </font>
        </property>
-       <property name="baseSize">
-        <size>
-         <width>0</width>
-         <height>50</height>
-        </size>
+       <property name="text">
+        <string notr="true">TextLabel</string>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
        </property>
-       <property name="digitCount">
-        <number>8</number>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
-       <property name="segmentStyle">
-        <enum>QLCDNumber::Flat</enum>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::NoTextInteraction</set>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayoutButton">
        <item>
-        <widget class="QPushButton" name="pushButtonIncrement">
+        <widget class="QPushButton" name="pushButtonSet">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -105,12 +105,12 @@
           </size>
          </property>
          <property name="text">
-          <string>Increment</string>
+          <string>Set</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButtonDecrement">
+        <widget class="QPushButton" name="pushButtonZero">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -130,7 +130,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Decrement</string>
+          <string>Zero</string>
          </property>
         </widget>
        </item>
@@ -150,28 +150,20 @@
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionIncrement">
+  <action name="actionZero">
    <property name="text">
-    <string>Increment</string>
+    <string>Zero</string>
    </property>
    <property name="toolTip">
-    <string>Increment the counter</string>
+    <string>Zero the readout</string>
    </property>
   </action>
-  <action name="actionDecrement">
+  <action name="actionSet">
    <property name="text">
-    <string>Decrement</string>
+    <string>Set</string>
    </property>
    <property name="toolTip">
-    <string>Decrement the counter</string>
-   </property>
-  </action>
-  <action name="actionScan">
-   <property name="text">
-    <string>Scan</string>
-   </property>
-   <property name="toolTip">
-    <string>Scan for Bluetooth LE devices</string>
+    <string>Set the readout to the user configured valued</string>
    </property>
   </action>
   <action name="actionConnect">
@@ -186,38 +178,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButtonIncrement</sender>
-   <signal>pressed()</signal>
-   <receiver>actionIncrement</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>122</x>
-     <y>96</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButtonDecrement</sender>
-   <signal>pressed()</signal>
-   <receiver>actionDecrement</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>348</x>
-     <y>96</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButtonConnect</sender>
    <signal>pressed()</signal>
    <receiver>actionConnect</receiver>
@@ -226,6 +186,38 @@
     <hint type="sourcelabel">
      <x>748</x>
      <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonZero</sender>
+   <signal>pressed()</signal>
+   <receiver>actionZero</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>738</x>
+     <y>546</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonSet</sender>
+   <signal>pressed()</signal>
+   <receiver>actionSet</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>546</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

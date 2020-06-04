@@ -20,18 +20,12 @@ public:
     MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandler *deviceHandler, QWidget *parent = nullptr);
     ~MainWindow();
 
-    void updateDevices();
-
-private slots:
-    void increment();
-    void decrement();
-    void updatePosition();
-
 private:
     Ui::MainWindow *ui;
-    int positionCounts;
+
     ConnectionHandler *connectionHandler;
     DialIndicatorHandler *deviceHandler;
-    QStandardItemModel devicesModel;
+
+    int positionCounts;
 };
 #endif // MAINWINDOW_H
