@@ -150,6 +150,7 @@ void DialIndicatorHandler::stopMeasurement()
 //! [Filter dial indicator service 1]
 void DialIndicatorHandler::serviceDiscovered(const QBluetoothUuid &gatt)
 {
+    std::cout << gatt.toByteArray().data() << std::endl;
     if (gatt == DIAL_INDICATOR_SERVICE_UUID) {
         setInfo("Dial Indicator service discovered. Waiting for service scan to be done...");
         m_foundDialIndicatorService = true;
@@ -224,15 +225,14 @@ void DialIndicatorHandler::updatePositionValue(const QLowEnergyCharacteristic &c
         return;
 
     // Position
-    float position = 0;
-    uint16_t flags = 0;
+    int32_t counts = 0;
     QDataStream in(value);
     in.setByteOrder(QDataStream::LittleEndian);
-    in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-    in >> position;
-    in >> flags;
+    in >> counts;
 
-    emit newMeasurementReceived(position);
+    this->m_position = counts * 0.01;
+
+    emit newMeasurementReceived();
 }
 //! [Reading value]
 
@@ -280,5 +280,11 @@ bool DialIndicatorHandler::alive() const
 
 double DialIndicatorHandler::position() const
 {
-    return m_position;
+    return m_position + m_offset;
+}
+
+void DialIndicatorHandler::setPosition(double setPosition)
+{
+    m_offset = setPosition - m_position;
+    emit newMeasurementReceived();
 }

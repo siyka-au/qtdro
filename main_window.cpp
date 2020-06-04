@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "ui_main_window.h"
 #include <stdlib.h>
+#include <QDoubleValidator>
 
 MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandler *deviceHandler, QWidget *parent)
     : QMainWindow(parent)
@@ -9,10 +10,20 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
     , deviceHandler(deviceHandler)
 {
     ui->setupUi(this);
+    ui->lineEditASetPosition->setValidator(new QDoubleValidator(-2000, 2000, 3, this));
 
     connect(ui->actionConnect, &QAction::triggered, this, [this]() {
         auto address = this->ui->lineEditAddress->text();
         this->deviceHandler->setDevice(address);
+    });
+
+    connect(ui->actionZero, &QAction::triggered, this, [this]() {
+        this->deviceHandler->setPosition(0);
+    });
+
+    connect(ui->actionSet, &QAction::triggered, this, [this]() {
+        auto setPos = this->ui->lineEditASetPosition->text().toDouble();
+        this->deviceHandler->setPosition(setPos);
     });
 
     connect(deviceHandler, &DialIndicatorHandler::infoChanged, this, [this]() {
@@ -27,7 +38,8 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
         this->deviceHandler->startMeasurement();
     });
 
-    connect(deviceHandler, &DialIndicatorHandler::newMeasurementReceived, this, [this](float position) {
+    connect(deviceHandler, &DialIndicatorHandler::newMeasurementReceived, this, [this]() {
+        double position = this->deviceHandler->position();
         ui->label->setText(QString::asprintf("%s%8.3f", position < 0 ? "-" : " ", abs(position)));
 //        ui->label->setText(QString::asprintf("%9.3f", position));
     });

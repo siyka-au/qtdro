@@ -60,8 +60,8 @@
 #include <QLowEnergyController>
 #include <QLowEnergyService>
 
-const QBluetoothUuid DIAL_INDICATOR_SERVICE_UUID = QBluetoothUuid(QString("d7578caf-686d-4216-ba8e-a3707f1590fc"));
-const QBluetoothUuid DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID = QBluetoothUuid(QString("d757fcb0-686d-4216-ba8e-a3707f1590fc"));
+const QBluetoothUuid DIAL_INDICATOR_SERVICE_UUID = QBluetoothUuid(QString("d7578caf-686d-4216-ba8e-a3703f1590fc"));
+const QBluetoothUuid DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID = QBluetoothUuid(QString("d757fcb0-686d-4216-ba8e-a3703f1590fc"));
 
 class DeviceInfo;
 
@@ -71,7 +71,6 @@ class DialIndicatorHandler : public BluetoothBaseClass
 
     Q_PROPERTY(bool measuring READ measuring NOTIFY measuringChanged)
     Q_PROPERTY(bool alive READ alive NOTIFY aliveChanged)
-    Q_PROPERTY(double position READ position NOTIFY statsChanged)
     Q_PROPERTY(AddressType addressType READ addressType WRITE setAddressType)
 
 public:
@@ -90,13 +89,13 @@ public:
     bool measuring() const;
     bool alive() const;
 
-    // Statistics
     double position() const;
+    void setPosition(double setPos);
 
 signals:
     void measuringChanged();
     void aliveChanged();
-    void newMeasurementReceived(float position);
+    void newMeasurementReceived();
 
 public slots:
     void startMeasurement();
@@ -111,11 +110,9 @@ private:
     //QLowEnergyService
     void serviceStateChanged(QLowEnergyService::ServiceState s);
     void updatePositionValue(const QLowEnergyCharacteristic &c, const QByteArray &value);
-    void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
+    void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);    
 
 private:
-    void setPosition(double value);
-
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;
     QLowEnergyDescriptor m_notificationDesc;
@@ -124,6 +121,7 @@ private:
     bool m_foundDialIndicatorService;
     bool m_measuring;
     double m_position;
+    double m_offset;
 
     QLowEnergyController::RemoteAddressType m_addressType = QLowEnergyController::PublicAddress;
 };

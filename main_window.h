@@ -26,6 +26,7 @@ private:
     ConnectionHandler *connectionHandler;
     DialIndicatorHandler *deviceHandler;
 
+
     int positionCounts;
 };
 #endif // MAINWINDOW_H
