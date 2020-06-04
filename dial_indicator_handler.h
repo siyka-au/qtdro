@@ -83,7 +83,7 @@ public:
 
     DialIndicatorHandler(QObject *parent = nullptr);
 
-    void setDevice(DeviceInfo *device);
+    void setDevice(const QString &address);
     void setAddressType(AddressType type);
     AddressType addressType() const;
 
@@ -96,7 +96,7 @@ public:
 signals:
     void measuringChanged();
     void aliveChanged();
-    void statsChanged();
+    void newMeasurementReceived(float position);
 
 public slots:
     void startMeasurement();
@@ -114,12 +114,12 @@ private:
     void confirmedDescriptorWrite(const QLowEnergyDescriptor &d, const QByteArray &value);
 
 private:
-    void setPoition(double value);
+    void setPosition(double value);
 
     QLowEnergyController *m_control = nullptr;
     QLowEnergyService *m_service = nullptr;
     QLowEnergyDescriptor m_notificationDesc;
-    DeviceInfo *m_currentDevice = nullptr;
+    QBluetoothAddress *address = nullptr;
 
     bool m_foundDialIndicatorService;
     bool m_measuring;

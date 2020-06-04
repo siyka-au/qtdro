@@ -48,10 +48,14 @@
 **
 ****************************************************************************/
 
+#include <iostream>
+#include <ostream>
+
 #include "dial_indicator_handler.h"
-#include "device_info.h"
+#include <QDataStream>
 #include <QtEndian>
 #include <QRandomGenerator>
+
 
 DialIndicatorHandler::DialIndicatorHandler(QObject *parent) :
     BluetoothBaseClass(parent),
@@ -82,10 +86,10 @@ DialIndicatorHandler::AddressType DialIndicatorHandler::addressType() const
     return DialIndicatorHandler::AddressType::PublicAddress;
 }
 
-void DialIndicatorHandler::setDevice(DeviceInfo *device)
+void DialIndicatorHandler::setDevice(const QString &addressString)
 {
     clearMessages();
-    m_currentDevice = device;
+    this->address = new QBluetoothAddress(addressString);
 
     // Disconnect and delete old connection
     if (m_control) {
@@ -95,11 +99,11 @@ void DialIndicatorHandler::setDevice(DeviceInfo *device)
     }
 
     // Create new controller and connect it if device available
-    if (m_currentDevice) {
+    if (this->address) {
 
         // Make connections
         //! [Connect-Signals-1]
-        m_control = QLowEnergyController::createCentral(m_currentDevice->getDevice(), this);
+        m_control = new QLowEnergyController(*address, this);
 
         //! [Connect-Signals-1]
         m_control->setRemoteAddressType(m_addressType);
@@ -108,15 +112,16 @@ void DialIndicatorHandler::setDevice(DeviceInfo *device)
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &DialIndicatorHandler::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &DialIndicatorHandler::serviceScanDone);
 
-        connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
+        connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this, [this](QLowEnergyController::Error error) {
             Q_UNUSED(error);
             setError("Cannot connect to remote device.");
         });
+
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             setInfo("Controller connected. Search services...");
             m_control->discoverServices();
         });
+
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             setError("LowEnergy controller disconnected");
         });
@@ -131,6 +136,7 @@ void DialIndicatorHandler::startMeasurement()
 {
     if (alive()) {
         m_measuring = true;
+        setInfo("Measuring...");
         emit measuringChanged();
     }
 }
@@ -164,7 +170,7 @@ void DialIndicatorHandler::serviceScanDone()
 //! [Filter dial indicator service 2]
     // If dial indicator service found, create new service
     if (m_foundDialIndicatorService)
-        m_service = m_control->createServiceObject(QBluetoothUuid(QBluetoothUuid::HeartRate), this);
+        m_service = m_control->createServiceObject(DIAL_INDICATOR_SERVICE_UUID, this);
 
     if (m_service) {
         connect(m_service, &QLowEnergyService::stateChanged, this, &DialIndicatorHandler::serviceStateChanged);
@@ -217,15 +223,16 @@ void DialIndicatorHandler::updatePositionValue(const QLowEnergyCharacteristic &c
     if (c.uuid() != DIAL_INDICATOR_POSITION_CHARACTERISTIC_UUID)
         return;
 
-    auto data = reinterpret_cast<const quint8 *>(value.constData());
-    quint8 flags = *data;
+    // Position
+    float position = 0;
+    uint16_t flags = 0;
+    QDataStream in(value);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    in >> position;
+    in >> flags;
 
-    //Heart Rate
-    int hrvalue = 0;
-    if (flags & 0x1) // HR 16 bit? otherwise 8 bit
-        hrvalue = static_cast<int>(qFromLittleEndian<quint16>(data[1]));
-    else
-        hrvalue = static_cast<int>(data[1]);
+    emit newMeasurementReceived(position);
 }
 //! [Reading value]
 
@@ -236,6 +243,8 @@ void DialIndicatorHandler::confirmedDescriptorWrite(const QLowEnergyDescriptor &
         m_control->disconnectFromDevice();
         delete m_service;
         m_service = nullptr;
+    } else {
+        setInfo("Notifications enabled.");
     }
 }
 
