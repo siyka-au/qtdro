@@ -49,7 +49,7 @@
 ****************************************************************************/
 
 #include "connection_handler.h"
-#include <QtBluetooth/qtbluetooth-config.h>
+//#include <QtBluetooth/qtbluetooth-config.h>
 #include <QtCore/qsystemdetection.h>
 
 ConnectionHandler::ConnectionHandler(QObject *parent) : QObject(parent)
@@ -64,11 +64,11 @@ bool ConnectionHandler::alive() const
 
 bool ConnectionHandler::requiresAddressType() const
 {
-#if QT_CONFIG(bluez)
+//#if QT_CONFIG(bluez)
     return true;
-#else
+/*#else
     return false;
-#endif
+#endif*/
 }
 
 QString ConnectionHandler::name() const

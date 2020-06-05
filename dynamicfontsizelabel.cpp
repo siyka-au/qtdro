@@ -35,7 +35,6 @@ void DynamicFontSizeLabel::paintEvent(QPaintEvent *event)
 float DynamicFontSizeLabel::getWidgetMaximumFontSize(QWidget *widget, QString text)
 {
     text = QString("-000.000");
-    qDebug() << "Text {" << text << "}";
     QFont font = widget->font();
     const QRect widgetRect = widget->contentsRect();
     const float widgetWidth = widgetRect.width();
