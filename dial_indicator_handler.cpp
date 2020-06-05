@@ -53,9 +53,6 @@
 
 #include "dial_indicator_handler.h"
 #include <QDataStream>
-#include <QtEndian>
-#include <QRandomGenerator>
-
 
 DialIndicatorHandler::DialIndicatorHandler(QObject *parent) :
     BluetoothBaseClass(parent),
