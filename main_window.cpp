@@ -1,6 +1,6 @@
 #include "main_window.h"
 #include "ui_main_window.h"
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <QDoubleValidator>
 
 MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandler *deviceHandler, QWidget *parent)
@@ -46,8 +46,8 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
 
     connect(deviceHandler, &DialIndicatorHandler::positionChanged, this, [this]() {
         double position = this->deviceHandler->position();
-        ui->label->setText(QString::asprintf("%s%8.3f", position < 0 ? "-" : " ", abs(position)));
-//        ui->label->setText(QString::asprintf("%9.3f", position));
+//        ui->label->setText(QString::asprintf("%s%8.3f", position < 0 ? "-" : " ", abs(position)));
+        ui->label->setText(QString::asprintf("%9.3f", position));
     });
 }
 
