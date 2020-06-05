@@ -10,7 +10,7 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
     , deviceHandler(deviceHandler)
 {
     ui->setupUi(this);
-    ui->lineEditASetPosition->setValidator(new QDoubleValidator(-2000, 2000, 3, this));
+//    ui->lineEditASetPosition->setValidator(new QDoubleValidator(-2000, 2000, 3, this));
 
     connect(ui->actionConnect, &QAction::triggered, this, [this]() {
         auto address = this->ui->lineEditAddress->text();
@@ -21,13 +21,19 @@ MainWindow::MainWindow(ConnectionHandler *connectionHandler, DialIndicatorHandle
         this->deviceHandler->setPosition(0);
     });
 
-    connect(ui->actionSet, &QAction::triggered, this, [this]() {
-        auto setPos = this->ui->lineEditASetPosition->text().toDouble();
-        this->deviceHandler->setPosition(setPos);
-    });
+//    connect(ui->actionSet, &QAction::triggered, this, [this]() {
+//        auto setPos = this->ui->lineEditASetPosition->text().toDouble();
+//        this->deviceHandler->setPosition(setPos);
+//    });
 
     connect(deviceHandler, &DialIndicatorHandler::infoChanged, this, [this]() {
         this->ui->statusbar->showMessage(this->deviceHandler->info());
+    });
+
+    connect(deviceHandler, &DialIndicatorHandler::aliveChanged, this, [this]() {
+        QColor red(Qt::red);
+        QColor green(Qt::green);
+        this->ui->label->setTextColor(this->deviceHandler->alive() ? green : red);
     });
 
     connect(deviceHandler, &DialIndicatorHandler::errorChanged, this, [this]() {

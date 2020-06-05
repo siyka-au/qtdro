@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -27,7 +27,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -45,6 +45,23 @@
         </property>
         <item>
          <widget class="QLineEdit" name="lineEditAddress">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>20</pointsize>
+           </font>
+          </property>
           <property name="inputMask">
            <string>HH:HH:HH:HH:HH:HH</string>
           </property>
@@ -55,6 +72,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonConnect">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
           <property name="text">
            <string>Connect</string>
           </property>
@@ -63,7 +86,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="DynamicFontSizeLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -86,7 +109,7 @@
          <bool>true</bool>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::NoTextInteraction</set>
@@ -98,22 +121,27 @@
         <item>
          <widget class="QPushButton" name="pushButtonSet">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>100</width>
-            <height>30</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="baseSize">
            <size>
-            <width>100</width>
-            <height>20</height>
+            <width>75</width>
+            <height>75</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Set</string>
@@ -121,27 +149,29 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEditASetPosition"/>
-        </item>
-        <item>
          <widget class="QPushButton" name="pushButtonZero">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>100</width>
-            <height>30</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="baseSize">
            <size>
-            <width>100</width>
-            <height>20</height>
+            <width>75</width>
+            <height>75</height>
            </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>16</pointsize>
+           </font>
           </property>
           <property name="text">
            <string>Zero</string>
@@ -190,6 +220,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DynamicFontSizeLabel</class>
+   <extends>QLabel</extends>
+   <header>dynamicfontsizelabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

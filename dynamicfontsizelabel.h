@@ -25,7 +25,6 @@ protected:
     void mousePressEvent(QMouseEvent* event);
     QColor textColor;
 
-
     // QWidget interface
 protected:
     void paintEvent(QPaintEvent *event);
