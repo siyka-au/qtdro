@@ -147,7 +147,6 @@ void DialIndicatorHandler::stopMeasurement()
 //! [Filter dial indicator service 1]
 void DialIndicatorHandler::serviceDiscovered(const QBluetoothUuid &gatt)
 {
-    std::cout << gatt.toByteArray().data() << std::endl;
     if (gatt == DIAL_INDICATOR_SERVICE_UUID) {
         setInfo("Dial Indicator service discovered. Waiting for service scan to be done...");
         m_foundDialIndicatorService = true;

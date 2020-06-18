@@ -119,6 +119,16 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayoutButton">
         <item>
+         <widget class="QLineEdit" name="lineEditSetPosition">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pushButtonSet">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
