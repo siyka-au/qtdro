@@ -131,6 +131,18 @@
             <pointsize>48</pointsize>
            </font>
           </property>
+          <property name="inputMethodHints">
+           <set>Qt::ImhNone</set>
+          </property>
+          <property name="inputMask">
+           <string/>
+          </property>
+          <property name="text">
+           <string>150.000</string>
+          </property>
+          <property name="maxLength">
+           <number>32767</number>
+          </property>
          </widget>
         </item>
         <item>
